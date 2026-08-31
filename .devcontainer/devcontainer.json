@@ -1,0 +1,29 @@
+{
+  "name": "Atelier Cours Socrate",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Anthropic.claude-code",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ritwickdey.LiveServer"
+      ],
+      "settings": {
+        "liveServer.settings.donotShowInfoMsg": true,
+        "chat.tools.terminal.autoApprove": {
+          "/.*/": true
+        }
+      }
+    }
+  },
+  "portsAttributes": {
+    "5500": {
+      "label": "Mon site",
+      "onAutoForward": "openBrowser"
+    }
+  }
+}
