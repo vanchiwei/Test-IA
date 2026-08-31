@@ -1,37 +1,716 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mon premier site</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Balance — Suivi budget</title>
   <style>
-    /* Ces quelques lignes de style sont le point de départ.
-       Dans quelques minutes, l'IA et vous allez tout transformer. */
+    @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --bg: #120d0d;
+      --panel: #1a1414;
+      --text: #f5efef;
+      --muted: #c9baba;
+      --accent: #d93030;
+      --accent-soft: #ff6f61;
+      --dark: #0b0909;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
-      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Manrope', sans-serif;
+      line-height: 1.7;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .container {
+      width: min(1150px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(18, 13, 13, 0.8);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .header-inner {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 74px;
+    }
+
+    .brand {
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .nav {
+      display: flex;
+      gap: 1.4rem;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .nav a {
+      position: relative;
+    }
+
+    .nav a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -0.3rem;
+      width: 100%;
+      height: 1px;
+      background: var(--text);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
+    .nav a:hover::after,
+    .nav a:focus-visible::after {
+      transform: scaleX(1);
+    }
+
+    .hero {
+      min-height: calc(100vh - 74px);
+      display: grid;
+      place-items: center;
+      padding: 2rem 0 4rem;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      align-items: center;
+      gap: clamp(2rem, 5vw, 4rem);
+      width: min(1150px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.74rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text);
+      padding: 0.6rem 0.9rem;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      letter-spacing: -0.05em;
+      line-height: 0.9;
+    }
+
+    .hero-copy h1 {
+      font-size: clamp(4rem, 8vw, 8rem);
+      margin-top: 1.3rem;
+    }
+
+    .hero-copy p {
+      max-width: 34rem;
+      margin-top: 1.3rem;
+      font-size: 1.08rem;
+      color: var(--muted);
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+
+    .button {
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      background: #f5f2ea;
-      color: #1b3a2a;
-      font-family: Georgia, serif;
-      text-align: center;
+      min-height: 3.2rem;
+      padding: 0.85rem 1.4rem;
+      border-radius: 999px;
+      border: 1px solid var(--text);
+      font-size: 0.78rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      font-weight: 800;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    h1 {
+
+    .button:hover,
+    .button:focus-visible {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 35px rgba(27, 29, 31, 0.08);
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--text);
+      border-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .budget-panel {
+      position: relative;
+      min-height: 520px;
+      display: grid;
+      place-items: center;
+    }
+
+    .budget-card {
+      position: relative;
+      width: min(100%, 440px);
+      min-height: 520px;
+      padding: 2rem 1.8rem 1.5rem;
+      background: linear-gradient(160deg, #180f10 0%, #2b1717 100%);
+      color: #f8f1f1;
+      border-radius: 2rem;
+      overflow: hidden;
+      box-shadow: 0 40px 80px rgba(0, 0, 0, 0.28);
+    }
+
+    .budget-card::before,
+    .budget-card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.9;
+    }
+
+    .budget-card::before {
+      width: 220px;
+      height: 220px;
+      top: -30px;
+      right: -40px;
+      background: rgba(217, 48, 48, 0.92);
+    }
+
+    .budget-card::after {
+      width: 260px;
+      height: 260px;
+      bottom: -60px;
+      left: -60px;
+      background: rgba(255, 111, 97, 0.14);
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 460px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      font-size: 0.74rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(237, 240, 239, 0.75);
+    }
+
+    .dot {
+      width: 0.72rem;
+      height: 0.72rem;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      display: inline-block;
+      box-shadow: 0 0 0 6px rgba(231, 183, 162, 0.12);
+    }
+
+    .card-amount {
+      margin-top: 3rem;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(237, 240, 239, 0.7);
+    }
+
+    .card-amount strong {
+      display: block;
+      margin-top: 0.8rem;
+      font-size: clamp(2.8rem, 5vw, 4.2rem);
+      letter-spacing: -0.06em;
+      font-family: 'Cormorant Garamond', serif;
+      color: #fff;
+      line-height: 1;
+    }
+
+    .bars {
+      display: flex;
+      align-items: end;
+      gap: 0.7rem;
+      height: 130px;
+      margin-top: 2.5rem;
+    }
+
+    .bars span {
+      flex: 1;
+      border-radius: 12px 12px 0 0;
+      background: linear-gradient(180deg, var(--accent-soft), var(--accent));
+      min-height: 26%;
+    }
+
+    .bars span:nth-child(1) { height: 42%; }
+    .bars span:nth-child(2) { height: 62%; }
+    .bars span:nth-child(3) { height: 76%; }
+    .bars span:nth-child(4) { height: 54%; }
+    .bars span:nth-child(5) { height: 96%; }
+
+    .card-footer {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.8rem;
+      margin-top: auto;
+      padding-top: 1.4rem;
+      border-top: 1px solid rgba(237, 240, 239, 0.2);
+    }
+
+    .metric span {
+      display: block;
+      font-size: 0.7rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(237, 240, 239, 0.7);
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 1.5rem;
+      font-family: 'Cormorant Garamond', serif;
+      color: #fff;
+      line-height: 1;
+    }
+
+    section {
+      padding: 5rem 0;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 1rem;
+      margin-bottom: 2.2rem;
+    }
+
+    .section-head h2 {
+      font-size: clamp(2.8rem, 5vw, 4.3rem);
+    }
+
+    .section-head p {
+      max-width: 30rem;
+      margin: 0;
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2rem;
+    }
+
+    .feature {
+      padding: 1.8rem;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 1.6rem;
+      border: 1px solid rgba(27, 29, 31, 0.08);
+      min-height: 270px;
+    }
+
+    .feature .number {
+      display: inline-block;
+      margin-bottom: 1rem;
+      color: var(--accent-soft);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .feature h3 {
       font-size: 2.2rem;
-      font-weight: normal;
+      margin-bottom: 0.8rem;
     }
-    p {
-      font-family: monospace;
-      color: #2e7d54;
+
+    .feature p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .story {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: center;
+    }
+
+    .story-panel {
+      min-height: 420px;
+      padding: clamp(1.5rem, 3vw, 2.8rem);
+      border-radius: 2rem;
+      background: linear-gradient(135deg, #1b1212 0%, #2a1717 100%);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .story-panel .shape {
+      width: 180px;
+      height: 180px;
+      border-radius: 30% 70% 58% 42% / 53% 36% 64% 47%;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-soft) 100%);
+      margin-bottom: 1.4rem;
+      box-shadow: inset 0 0 0 12px rgba(255,255,255,0.14);
+    }
+
+    .story-copy {
+      padding-left: clamp(0rem, 1vw, 1rem);
+    }
+
+    .story-copy h2 {
+      font-size: clamp(2.6rem, 4vw, 4rem);
+      margin-bottom: 1rem;
+    }
+
+    .story-copy p {
+      margin: 0 0 1.2rem;
+      color: var(--muted);
+      font-size: 1.04rem;
+    }
+
+    .quote {
+      display: block;
+      margin-top: 1.6rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.2rem;
+    }
+
+    .step {
+      padding: 1.4rem 1.2rem;
+      border-radius: 1.4rem;
+      border: 1px solid rgba(27, 29, 31, 0.08);
+      background: rgba(255,255,255,0.16);
+    }
+
+    .step strong {
+      display: inline-flex;
+      width: 2.2rem;
+      height: 2.2rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      margin-bottom: 1rem;
+    }
+
+    .step h3 {
+      font-size: 2rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .footer {
+      padding: 2rem 0 3.5rem;
+      border-top: 1px solid rgba(27, 29, 31, 0.1);
+    }
+
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    @media (max-width: 860px) {
+      .hero-grid,
+      .story,
+      .features,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .section-head {
+        display: block;
+      }
+
+      .section-head p {
+        margin-top: 1rem;
+      }
+
+      .nav {
+        display: none;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .cta-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .button {
+        width: 100%;
+      }
+
+      .budget-card {
+        min-height: 460px;
+      }
+
+      .card-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-inner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
-  <main>
-    <h1>Bonjour, je m'appelle ___</h1>
-    <p>Ce site est presque vide. C'est normal : c'est vous qui allez le construire.</p>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#top" class="brand">Balance</a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="#approche">Approche</a>
+        <a href="#missions">Missions</a>
+        <a href="#process">Process</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-copy reveal">
+          <span class="eyebrow">Suivi budgétaire</span>
+          <h1>Gagner en clarté.</h1>
+          <p>
+            Un espace pensé pour voir vos dépenses, piloter votre épargne et prendre des décisions plus sereines chaque mois.
+          </p>
+          <div class="cta-row">
+            <a href="#missions" class="button primary">Découvrir</a>
+            <a href="#approche" class="button secondary">Notre méthode</a>
+          </div>
+        </div>
+
+        <div class="budget-panel reveal" aria-label="Illustration de suivi budgétaire">
+          <div class="budget-card">
+            <div class="card-inner">
+              <div class="card-top">
+                <span>Balance</span>
+                <span class="dot" aria-hidden="true"></span>
+              </div>
+
+              <div class="card-amount">
+                Solde du mois
+                <strong>€2 480</strong>
+              </div>
+
+              <div class="bars" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+
+              <div class="card-footer">
+                <div class="metric">
+                  <span>Revenus</span>
+                  <strong>€4.1k</strong>
+                </div>
+                <div class="metric">
+                  <span>Épargne</span>
+                  <strong>€840</strong>
+                </div>
+                <div class="metric">
+                  <span>Dépenses</span>
+                  <strong>€1.6k</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="approche">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Une vue nette sur votre budget.</h2>
+          <p>La bonne gestion n’a pas besoin d’être compliquée : il suffit d’un cadre clair et de données lisibles.</p>
+        </div>
+
+        <div class="features">
+          <article class="feature reveal">
+            <span class="number">01 — Suivre</span>
+            <h3>Vue globale</h3>
+            <p>Comprenez d’un seul coup d’œil où va votre argent et ce qui peut être ajusté sans effort.</p>
+          </article>
+
+          <article class="feature reveal">
+            <span class="number">02 — Anticiper</span>
+            <h3>Prévisions</h3>
+            <p>Planifiez les dépenses fixes, les imprévus et votre épargne avec une meilleure sérénité.</p>
+          </article>
+
+          <article class="feature reveal">
+            <span class="number">03 — Agir</span>
+            <h3>Décisions</h3>
+            <p>Transformez les chiffres en actions concrètes, avec des priorités simples et des objectifs réalistes.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="missions">
+      <div class="container story">
+        <div class="story-panel reveal">
+          <div class="shape" aria-hidden="true"></div>
+          <div>
+            <span class="eyebrow" style="padding: 0.5rem 0.8rem; font-size: 0.68rem; color: var(--text); background: rgba(255,255,255,0.25);">Notre mission</span>
+            <h3 style="font-size: 2.7rem; margin-top: 0.9rem;">Rendre la gestion financière plus douce.</h3>
+          </div>
+        </div>
+
+        <div class="story-copy reveal">
+          <h2>Le budget doit rassurer.</h2>
+          <p>Quand les comptes sont visibles, les décisions deviennent plus simples. On évite le stress, on repère les dépenses inutiles et on construit un équilibre durable entre besoins, envies et avenir.</p>
+          <p>Notre approche aide les particuliers et les petites équipes à mieux organiser leur argent, sans jargon ni complexité. L’objectif : faire de la gestion financière un outil de liberté, pas une source d’inquiétude.</p>
+          <span class="quote">“Une meilleure visibilité, une meilleure décision, une vie plus sereine.”</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="process">
+      <div class="container">
+        <div class="section-head reveal">
+          <h2>Comment ça marche.</h2>
+          <p>Un suivi simple, progressif et pensé pour vous aider à rester constant sans vous submerger.</p>
+        </div>
+
+        <div class="steps">
+          <article class="step reveal">
+            <strong>1</strong>
+            <h3>Centraliser</h3>
+            <p>Regroupez revenus, dépenses et objectifs dans un seul espace clair et lisible.</p>
+          </article>
+
+          <article class="step reveal">
+            <strong>2</strong>
+            <h3>Analyser</h3>
+            <p>Repérez les habitudes qui coûtent cher et identifiez les marges de progression.</p>
+          </article>
+
+          <article class="step reveal">
+            <strong>3</strong>
+            <h3>Optimiser</h3>
+            <p>Fixez des priorités réalistes, ajustez votre rythme et maintenez votre cap sur le long terme.</p>
+          </article>
+        </div>
+      </div>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div>Balance — Suivi budget & organisation</div>
+      <div>bonjour@balance.fr</div>
+    </div>
+  </footer>
+
+  <script>
+    const revealItems = document.querySelectorAll('.reveal');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+
+    revealItems.forEach((item) => observer.observe(item));
+  </script>
 </body>
 </html>
